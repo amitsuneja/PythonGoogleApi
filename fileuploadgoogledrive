@@ -1,0 +1,54 @@
+###########################################################################################################
+# https://medium.com/@annissouames99/how-to-upload-files-automatically-to-drive-with-python-ee19bb13dda
+##########################################################################################################
+# https://console.cloud.google.com/getting-started > create project
+# Your dashboard should be empty, you need to select the APIs you want to activate for your project,
+# we only need the Google Drive API, but if next time you want to play with Youtube, Maps, Gmail or any
+# other Google App you can activate their APIs the same way.
+# elect ‘ APIs and Services’ then select Dashboard > rive in the search bar, and click on the link to go to the
+# API’s page, once there, enable it :
+# Here you will see your API calls stats, it’s time to create our API & client keys, we use those when we make
+# API calls so it can link up the call to our account, thus control our drive from our code.
+# We need the 2nd one, even if you’d like to access only your own drive account, because the first one let
+# you access your app drive account which is different from your own account.
+# But before doing that, we need to give our app a name, go to the ‘OAuth consent screen’ and give it a name
+# in the ‘Product name’ field:
+# Now, let’s go back to the 1st tab, and create a Client ID, you will have to choose the type of application,
+# just choose other as this will be a script forr our personal use.
+#
+# Now you will be taken back to the credentials tab, this time you have a client ID and a client secret,
+# both of these are important to authenticate our app through Python.
+# and download json file. rename it as
+# client_secrets.json and keep it in same folder.
+#############################################################################################################
+import pandas as pd
+import os
+
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+
+gauth = GoogleAuth()
+# gauth.LocalWebserverAuth()
+drive = GoogleDrive(gauth)
+
+
+date_list = ['2012-06-08', '2012-06-09', '2012-06-10', '2012-06-11']
+data_list = [99, 100, 106, 102]
+
+# Create DataFrame from 2 lists
+df = pd.DataFrame(
+	{'Date': date_list,
+	 'DateValue': data_list
+	 }
+)
+
+df.to_csv("d:\\temp.csv")
+
+
+with open("d:\\temp.csv", "r") as f:
+	fn = os.path.basename(f.name)
+	file_drive = drive.CreateFile({'title': fn})
+	file_drive.SetContentString(f.read())
+	file_drive.Upload()
+	print("The file: " + fn + " has been uploaded")
+
