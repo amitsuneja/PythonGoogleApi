@@ -1,0 +1,62 @@
+# this folder also contain client_secrets.json file
+# https://console.cloud.google.com/getting-started > create project
+
+
+# Importing Libraries
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+import os
+import pandas as pd
+
+# Defining Variables
+file_path = "d:\\datafile.csv"
+file_name = os.path.basename(file_path)
+dir_name = os.path.dirname(file_path)
+folder_name = '2012'
+folder_test = 0
+
+date_list = ['2012-06-08', '2012-06-09', '2012-06-10', '2012-06-11']
+data_list = [99, 100, 106, 102]
+
+# Create dataframe from list
+df = pd.DataFrame(
+	{'Date': date_list,
+	 'Data': data_list}
+)
+
+# save dataframe to csv
+df.to_csv(file_path)
+
+# google object
+g_auth = GoogleAuth()
+# g_auth.LocalWebserverAuth() # optional just while testing code
+drive = GoogleDrive(g_auth)
+
+# create a list of all existing files and folders in google drive
+existing_folder_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
+
+# iterate over list and check if folder_name already exist , it yes then make folder_test = 1
+for folder in existing_folder_list:
+	print("testing for folder title :", folder['title'])
+	if folder['title'] == folder_name:
+		print("Test Pass")
+		folderid = folder['id']
+		foldertitle = folder['title']
+		folder_test = 1
+
+# create folder it it does not exist
+if folder_test == 0:
+	folder_metadata = {'title': folder_name, 'mimeType': 'application/vnd.google-apps.folder'}
+	folder = drive.CreateFile(folder_metadata)
+	folder.Upload()
+	# Get folder info
+	foldertitle = folder['title']
+	folderid = folder['id']
+
+# Printing folder information
+print("folder title = {} and folderid = {}".format(foldertitle, folderid))
+
+# Upload file to folder
+file = drive.CreateFile({"parents": [{"kind": "drive#fileLink", "id": folderid}]})
+file.SetContentFile(file_path)   # see carefully this is not SetContentString(f.read()) which is other method/function
+file.Upload({'convert': True})   # Convert csv to google sheet.
