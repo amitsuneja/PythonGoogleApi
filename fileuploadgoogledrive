@@ -48,7 +48,7 @@ df.to_csv("d:\\temp.csv")
 with open("d:\\temp.csv", "r") as f:
 	fn = os.path.basename(f.name)
 	file_drive = drive.CreateFile({'title': fn})
-	file_drive.SetContentString(f.read())
+	file_drive.SetContentString(f.read())   # another function is file.SetContentFile(file_path) no need to read file even
 	file_drive.Upload()
 	print("The file: " + fn + " has been uploaded")
 
