@@ -59,4 +59,4 @@ print("folder title = {} and folderid = {}".format(foldertitle, folderid))
 # Upload file to folder
 file = drive.CreateFile({"parents": [{"kind": "drive#fileLink", "id": folderid}]})
 file.SetContentFile(file_path)   # see carefully this is not SetContentString(f.read()) which is other method/function
-file.Upload({'convert': True})   # Convert csv to google sheet.
+file.Upload({'convert': True})   # Convert csv to google sheet. Make it False like for .json file else it gives error
